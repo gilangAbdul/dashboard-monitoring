@@ -48,10 +48,7 @@ export default function RankingTable({ rows, target }: { rows: Row[]; target: nu
               <tr key={r.nama} className="hover:bg-slate-50">
                 <td className="px-3 py-2.5 text-slate-400">{r.rank}</td>
                 <td className="px-3 py-2.5 font-medium text-slate-800">{r.nama}</td>
-                <td className="px-3 py-2.5 text-right tabular-nums">
-                  {r.dicek}
-                  <span className="text-slate-400">/{target}</span>
-                </td>
+                <td className="px-3 py-2.5 text-right tabular-nums">{r.dicek}</td>
                 <td className="px-3 py-2.5">
                   <div className="flex items-center gap-2">
                     <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
