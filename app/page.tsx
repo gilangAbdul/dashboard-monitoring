@@ -36,13 +36,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
   );
 
   // Rekap per pegawai (semua nama dari tab Rekap tetap tampil, walau belum input)
-  const map = new Map<string, { dicek: number; poin: number; hariIni: number; rt: Set<string> }>();
-  for (const n of raw.names) map.set(n, { dicek: 0, poin: 0, hariIni: 0, rt: new Set() });
+  const map = new Map<string, { dicek: number; poin: number; poinHariIni: number; rt: Set<string> }>();
+  for (const n of raw.names) map.set(n, { dicek: 0, poin: 0, poinHariIni: 0, rt: new Set() });
   for (const r of records) {
-    const m = map.get(r.pegawai) ?? { dicek: 0, poin: 0, hariIni: 0, rt: new Set<string>() };
+    const m = map.get(r.pegawai) ?? { dicek: 0, poin: 0, poinHariIni: 0, rt: new Set<string>() };
     m.dicek += 1;
     m.poin += r.poin;
-    if (r.tanggal === today) m.hariIni += 1;
+    if (r.tanggal === today) m.poinHariIni += r.poin;
     m.rt.add(`${r.kelurahan}|${r.rtSls}`);
     map.set(r.pegawai, m);
   }
@@ -51,7 +51,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
     dicek: m.dicek,
     poin: m.poin,
     capaian: m.dicek / TARGET,
-    hariIni: m.hariIni,
+    poinHariIni: m.poinHariIni,
     rt: m.rt.size,
   }));
 
