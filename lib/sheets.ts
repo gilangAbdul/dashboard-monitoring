@@ -18,6 +18,7 @@ const TTL_MS = 30_000;
 // Cocok jika nama pegawai MENGANDUNG teks di bawah (tanpa membedakan huruf besar/kecil).
 // Tambahan lewat env: HIDE_PEGAWAI="Nama A,Nama B"
 const HIDDEN_PEGAWAI = [
+    "Arum Purbowati", // contoh pegawai yang disembunyikan
   ...(process.env.HIDE_PEGAWAI ?? "").split(",").map((s) => s.trim()).filter(Boolean),
 ].map((s) => s.toLowerCase());
 
