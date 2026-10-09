@@ -26,10 +26,10 @@ export function PegawaiBar({
   data: { nama: string; dicek: number; capaian: number }[];
   target: number;
 }) {
-  const height = Math.max(240, data.length * 26 + 40);
+  const height = Math.max(240, data.length * 26 + 60);
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <BarChart data={data} layout="vertical" margin={{ left: 8, right: 24, top: 8, bottom: 8 }}>
+      <BarChart data={data} layout="vertical" margin={{ left: 8, right: 32, top: 28, bottom: 8 }}>
         <CartesianGrid horizontal={false} stroke="#e2e8f0" />
         <XAxis type="number" tick={AXIS} domain={[0, (max: number) => Math.max(max, target)]} />
         <YAxis type="category" dataKey="nama" width={150} tick={AXIS} interval={0} />

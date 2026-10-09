@@ -1,6 +1,6 @@
 import { getRawData, TARGET } from "@/lib/sheets";
 import { KATEGORI, type Rec } from "@/lib/types";
-import { fmtNum, fmtPct, fmtTanggal, shortName, statusColor, todayWIB } from "@/lib/utils";
+import { fmtNum, fmtPct, fmtTanggal, fmtTanggalLengkap, shortName, statusColor, todayWIB } from "@/lib/utils";
 import KpiCard from "@/components/KpiCard";
 import RankingTable, { type Row } from "@/components/RankingTable";
 import { KategoriDonut, PegawaiBar, TrenLine } from "@/components/Charts";
@@ -93,86 +93,92 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
   const warnaCapaian = statusColor(capaianSatker);
   const filterAktif = !!(sp.kec || sp.kel || sp.dari || sp.sampai);
 
+  const inputCls =
+    "mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-blue-500";
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      {/* Header */}
-      <header className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-            Monitoring Pencacahan Ulang SLS/RT
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            {jumlahPegawai} pegawai • target {fmtNum(TARGET)} assignment per pegawai •{" "}
-            {raw.demo ? (
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
-                DATA DEMO
-              </span>
-            ) : (
-              "data langsung dari Google Sheets"
-            )}
-          </p>
-        </div>
+      {/* Judul */}
+      <header className="mb-4">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+          Monitoring Pencacahan Ulang SLS/RT
+        </h1>
+        <p className="mt-1 text-sm text-slate-500">
+          {jumlahPegawai} pegawai • target {fmtNum(TARGET)} assignment per pegawai •{" "}
+          {raw.demo ? (
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+              DATA DEMO
+            </span>
+          ) : (
+            "data langsung dari Google Sheets"
+          )}
+        </p>
+      </header>
 
-        {/* Filter: form GET biasa, tanpa JavaScript tambahan */}
-        <form method="get" className="flex flex-wrap items-end gap-2">
-          <label className="text-xs text-slate-500">
+      {/* Filter: memanjang selebar halaman */}
+      <form method="get" className="card mb-4 w-full">
+        <h2 className="mb-3 text-base font-semibold text-slate-900">Filter</h2>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto] lg:items-end">
+          <label className="text-xs font-medium text-slate-500">
             Kecamatan
-            <select name="kec" defaultValue={sp.kec ?? ""} className="mt-1 block rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800">
+            <select name="kec" defaultValue={sp.kec ?? ""} className={inputCls}>
               <option value="">Semua</option>
               {kecOptions.map((k) => (
                 <option key={k} value={k}>{k}</option>
               ))}
             </select>
           </label>
-          <label className="text-xs text-slate-500">
+          <label className="text-xs font-medium text-slate-500">
             Kelurahan
-            <select name="kel" defaultValue={sp.kel ?? ""} className="mt-1 block rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800">
+            <select name="kel" defaultValue={sp.kel ?? ""} className={inputCls}>
               <option value="">Semua</option>
               {kelOptions.map((k) => (
                 <option key={k} value={k}>{k}</option>
               ))}
             </select>
           </label>
-          <label className="text-xs text-slate-500">
-            Dari
-            <input type="date" name="dari" defaultValue={sp.dari ?? ""} className="mt-1 block rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800" />
+          <label className="text-xs font-medium text-slate-500">
+            Dari tanggal
+            <input type="date" name="dari" defaultValue={sp.dari ?? ""} className={inputCls} />
           </label>
-          <label className="text-xs text-slate-500">
-            Sampai
-            <input type="date" name="sampai" defaultValue={sp.sampai ?? ""} className="mt-1 block rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800" />
+          <label className="text-xs font-medium text-slate-500">
+            Sampai tanggal
+            <input type="date" name="sampai" defaultValue={sp.sampai ?? ""} className={inputCls} />
           </label>
-          <button type="submit" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
-            Terapkan
-          </button>
-          {filterAktif && (
-            <a href="/" className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
-              Reset
-            </a>
-          )}
-        </form>
-      </header>
+          <div className="flex gap-2">
+            <button type="submit" className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700">
+              Terapkan
+            </button>
+            {filterAktif && (
+              <a href="/" className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
+                Reset
+              </a>
+            )}
+          </div>
+        </div>
+      </form>
 
-      {/* KPI */}
+      {/* KPI: Total Assignment, Total Poin, Hari ini, Capaian Satker */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Total Assignment" value={fmtNum(totalDicek)} accent="#2563eb" />
+        <KpiCard label="Total Poin" value={fmtNum(totalPoin)} accent="#7c3aed" />
         <KpiCard
-          label="Total assignment dicek"
-          value={fmtNum(totalDicek)}
-          sub={`dari target ${fmtNum(targetSatker)}`}
-          accent="#2563eb"
+          label="Dikerjakan hari ini"
+          value={fmtNum(hariIni)}
+          sub={fmtTanggalLengkap(today)}
+          accent="#14b8a6"
         />
         <KpiCard
-          label="Capaian satker"
+          label="Capaian Satker"
           value={fmtPct(capaianSatker)}
           sub={`${selesai} dari ${jumlahPegawai} pegawai sudah mencapai target`}
           accent={warnaCapaian}
           progress={capaianSatker}
         />
-        <KpiCard label="Total poin" value={fmtNum(totalPoin)} sub="akumulasi seluruh pegawai" accent="#7c3aed" />
-        <KpiCard label="Dikerjakan hari ini" value={fmtNum(hariIni)} sub={fmtTanggal(today)} accent="#14b8a6" />
       </section>
 
-      {/* Baris 2 */}
-      <section className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+      {/* Progres per pegawai (kiri) + Hasil verifikasi & Tren (kanan, atas-bawah dalam satu kartu) */}
+      <section className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
         <div className="card lg:col-span-2">
           <h2 className="text-base font-semibold text-slate-900">Progres per pegawai</h2>
           <p className="mb-3 text-sm text-slate-500">
@@ -180,25 +186,33 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
           </p>
           <PegawaiBar data={bar} target={TARGET} />
         </div>
-        <div className="card">
+
+        <div className="card lg:sticky lg:top-4">
           <h2 className="text-base font-semibold text-slate-900">Hasil verifikasi</h2>
           <p className="mb-3 text-sm text-slate-500">Sebaran kategori assignment</p>
-          {donut.length ? <KategoriDonut data={donut} /> : <p className="py-10 text-center text-sm text-slate-400">Belum ada data.</p>}
+          {donut.length ? (
+            <KategoriDonut data={donut} />
+          ) : (
+            <p className="py-10 text-center text-sm text-slate-400">Belum ada data.</p>
+          )}
+
+          <hr className="my-5 border-slate-100" />
+
+          <h2 className="text-base font-semibold text-slate-900">Tren harian</h2>
+          <p className="mb-3 text-sm text-slate-500">Jumlah assignment dicek per hari</p>
+          {tren.length ? (
+            <TrenLine data={tren} />
+          ) : (
+            <p className="py-10 text-center text-sm text-slate-400">Belum ada data.</p>
+          )}
         </div>
       </section>
 
-      {/* Baris 3 */}
-      <section className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-5">
-        <div className="card lg:col-span-2">
-          <h2 className="text-base font-semibold text-slate-900">Tren harian</h2>
-          <p className="mb-3 text-sm text-slate-500">Jumlah assignment dicek per hari</p>
-          {tren.length ? <TrenLine data={tren} /> : <p className="py-10 text-center text-sm text-slate-400">Belum ada data.</p>}
-        </div>
-        <div className="card lg:col-span-3">
-          <h2 className="text-base font-semibold text-slate-900">Peringkat pegawai</h2>
-          <p className="mb-3 text-sm text-slate-500">Diurutkan berdasarkan total poin</p>
-          <RankingTable rows={rows} target={TARGET} />
-        </div>
+      {/* Peringkat pegawai */}
+      <section className="card mt-4">
+        <h2 className="text-base font-semibold text-slate-900">Peringkat pegawai</h2>
+        <p className="mb-3 text-sm text-slate-500">Diurutkan berdasarkan total poin</p>
+        <RankingTable rows={rows} target={TARGET} />
       </section>
 
       {/* Catatan */}

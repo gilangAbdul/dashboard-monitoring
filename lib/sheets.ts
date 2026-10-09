@@ -14,9 +14,24 @@ const cell = (row: unknown[] | undefined, i: number): string => {
 let cache: { at: number; data: RawData } | null = null;
 const TTL_MS = 30_000;
 
+// Pegawai yang disembunyikan dari dashboard (tidak muncul di grafik, tabel, dan hitungan).
+// Cocok jika nama pegawai MENGANDUNG teks di bawah (tanpa membedakan huruf besar/kecil).
+// Tambahan lewat env: HIDE_PEGAWAI="Nama A,Nama B"
+const HIDDEN_PEGAWAI = [
+  "Arum Purbowati",
+  ...(process.env.HIDE_PEGAWAI ?? "").split(",").map((s) => s.trim()).filter(Boolean),
+].map((s) => s.toLowerCase());
+
+const isHidden = (nama: string) => HIDDEN_PEGAWAI.some((h) => nama.toLowerCase().includes(h));
+
 export async function getRawData(): Promise<RawData> {
   if (cache && Date.now() - cache.at < TTL_MS) return cache.data;
-  const data = await fetchRawData();
+  const raw = await fetchRawData();
+  const data: RawData = {
+    ...raw,
+    names: raw.names.filter((n) => !isHidden(n)),
+    records: raw.records.filter((r) => !isHidden(r.pegawai)),
+  };
   cache = { at: Date.now(), data };
   return data;
 }

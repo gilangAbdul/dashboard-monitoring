@@ -38,6 +38,20 @@ export function fmtTanggal(iso: string): string {
   });
 }
 
+const HARI = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+const BULAN = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+];
+
+// "2026-10-09" -> "Jumat, 09 Oktober 2026" (format: day, dd MMMM YYYY)
+export function fmtTanggalLengkap(iso: string): string {
+  if (!iso) return "-";
+  const [y, m, d] = iso.split("-").map(Number);
+  const hari = HARI[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
+  return `${hari}, ${String(d).padStart(2, "0")} ${BULAN[m - 1]} ${y}`;
+}
+
 export function fmtNum(n: number): string {
   return n.toLocaleString("id-ID");
 }
