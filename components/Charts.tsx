@@ -23,7 +23,7 @@ export function PegawaiBar({
   data,
   target,
 }: {
-  data: { nama: string; dicek: number; capaian: number }[];
+  data: { nama: string; poin: number; capaian: number }[];
   target: number;
 }) {
   const height = Math.max(240, data.length * 26 + 60);
@@ -35,10 +35,10 @@ export function PegawaiBar({
         <YAxis type="category" dataKey="nama" width={150} tick={AXIS} interval={0} />
         <Tooltip
           cursor={{ fill: "#f1f5f9" }}
-          formatter={(v) => [`${v} assignment`, "Dicek"]}
+          formatter={(v) => [`${v} poin`, "Poin"]}
         />
         <ReferenceLine x={target} stroke="#94a3b8" strokeDasharray="4 4" label={{ value: "Target", fill: "#64748b", fontSize: 11, position: "top" }} />
-        <Bar dataKey="dicek" radius={[0, 6, 6, 0]} barSize={14}>
+        <Bar dataKey="poin" radius={[0, 6, 6, 0]} barSize={14}>
           {data.map((d) => (
             <Cell key={d.nama} fill={statusColor(d.capaian)} />
           ))}

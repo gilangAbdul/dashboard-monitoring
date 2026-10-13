@@ -50,7 +50,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
     nama,
     dicek: m.dicek,
     poin: m.poin,
-    capaian: m.dicek / TARGET,
+    capaian: m.poin / TARGET,
     poinHariIni: m.poinHariIni,
     rt: m.rt.size,
   }));
@@ -60,7 +60,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
   const totalDicek = records.length;
   const totalPoin = records.reduce((s, r) => s + r.poin, 0);
   const hariIni = records.filter((r) => r.tanggal === today).length;
-  const capaianSatker = totalDicek / targetSatker;
+  const capaianSatker = totalPoin / targetSatker;
   const selesai = rows.filter((r) => r.capaian >= 1).length;
 
   // Kategori
@@ -81,8 +81,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
 
   // Grafik batang: yang paling tertinggal di atas
   const bar = [...rows]
-    .sort((a, b) => a.dicek - b.dicek)
-    .map((r) => ({ nama: shortName(r.nama), dicek: r.dicek, capaian: r.capaian }));
+    .sort((a, b) => a.poin - b.poin)
+    .map((r) => ({ nama: shortName(r.nama), poin: r.poin, capaian: r.capaian }));
 
   // Catatan tidak ditemukan (terbaru dulu)
   const catatan = records
@@ -182,7 +182,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<SP>
         <div className="card lg:col-span-2">
           <h2 className="text-base font-semibold text-slate-900">Progres per pegawai</h2>
           <p className="mb-3 text-sm text-slate-500">
-            Yang paling tertinggal ada di atas. Merah &lt; 50%, kuning 50-99%, hijau ≥ 100% target.
+            Capaian = total poin ÷ target poin. Yang paling tertinggal ada di atas. Merah &lt; 50%, kuning 50-99%, hijau ≥ 100%.
           </p>
           <PegawaiBar data={bar} target={TARGET} />
         </div>
